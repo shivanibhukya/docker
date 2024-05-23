@@ -1,0 +1,29 @@
+# Use the official Python base image to build the dependencies
+FROM python:3.8-slim AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the requirements file
+COPY requirements.txt .
+
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . .
+
+# Use the distroless base image for the final image
+FROM gcr.io/distroless/python3
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the dependencies and the application code from the build stage
+COPY --from=build /app /app
+
+# Expose port 80
+EXPOSE 80
+
+# Command to run the application
+CMD ["python", "app.py"]
